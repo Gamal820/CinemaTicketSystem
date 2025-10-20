@@ -1,0 +1,91 @@
+﻿@model IEnumerable<CinemaTicketSystem.Models.Actor>
+
+<div class="container my-4">
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-6">
+            <h2 class="display-6 fw-bold">All Actors</h2>
+        </div>
+        <div class="col-md-6 text-md-end text-start mt-2 mt-md-0">
+            <a href="/Admin/Actor/Create" class="btn btn-success px-4">Create</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 col-sm-6">
+                <div class="card border-0 h-100 shadow-sm">
+                    <img src="~/ActorImages/@item.Img" class="card-img-top" alt="@item.Name" style="height:250px; object-fit:cover;" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title mt-2">@item.Name</h5>
+                        <p class="text-muted">@item.Bio</p>
+                        <div class="d-flex justify-content-center gap-2 mt-3">
+                            <a href="/Admin/Actor/Edit/@item.Id" class="btn btn-warning btn-sm px-3">Edit</a>
+                            <a href="/Admin/Actor/Delete/@item.Id" class="btn btn-danger btn-sm px-3 btn-delete">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        <nav>
+            <ul class="pagination">
+                @if (ViewBag.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(ViewBag.CurrentPage - 1)">Previous</a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                        <a class="page-link" href="?page=@i">@i</a>
+                    </li>
+                }
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(ViewBag.CurrentPage + 1)">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".btn-delete");
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                e.preventDefault();
+                const url = this.getAttribute("href");
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This action cannot be undone!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Actor deleted successfully.",
+                            icon: "success"
+                        });
+                        window.location.href = url;
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+@section Scripts {
+    <partial name="_NotificationPartial" />
+}
