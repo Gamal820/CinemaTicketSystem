@@ -1,0 +1,33 @@
+﻿@{
+    var success = TempData["success-notification"] as string;
+    var error = TempData["error-notification"] as string;
+}
+
+<style>
+    .custom-alert-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 2000;
+        width: auto;
+        min-width: 250px;
+    }
+</style>
+
+<div class="custom-alert-container">
+    @if (!string.IsNullOrEmpty(success))
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-lg" role="alert">
+            @success
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-lg" role="alert">
+            @error
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>

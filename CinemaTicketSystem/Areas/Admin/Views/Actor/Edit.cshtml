@@ -1,0 +1,56 @@
+﻿@model CinemaTicketSystem.Models.Actor
+
+@{
+    ViewData["Title"] = "Edit Actor";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4 fw-bold text-warning">Edit Actor</h2>
+
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-semibold"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Current Image</label>
+                            @if (!string.IsNullOrEmpty(Model.Img))
+                            {
+                                <div class="mb-2">
+                                    <img src="~/ActorImages/@Model.Img" alt="Actor Image" class="img-thumbnail" style="max-height:150px; object-fit:cover;" />
+                                </div>
+                            }
+
+                            <label class="form-label fw-semibold">Upload New Image</label>
+                            <input type="file" name="NewImg" class="form-control" />
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/Admin/Actor/Index" class="btn btn-secondary px-4">Back</a>
+                            <button type="submit" class="btn btn-warning px-4">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_NotificationPartial" />
+}

@@ -1,0 +1,117 @@
+﻿@model CinemaTicketSystem.ViewModels.MovieVM
+
+@{
+    ViewData["Title"] = "Create New Movie";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4 fw-bold text-primary">Create New Movie</h2>
+
+                    <form asp-action="Create" enctype="multipart/form-data" method="post">
+
+                        <!-- Movie Name -->
+                        <div class="mb-3">
+                            <label asp-for="Movie.Name" class="form-label fw-semibold"></label>
+                            <input asp-for="Movie.Name" class="form-control" placeholder="Enter movie name" />
+                            <span asp-validation-for="Movie.Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label asp-for="Movie.Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Movie.Description" class="form-control" rows="3" placeholder="Enter description"></textarea>
+                            <span asp-validation-for="Movie.Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            <label asp-for="Movie.Price" class="form-label fw-semibold"></label>
+                            <input asp-for="Movie.Price" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="Movie.Price" class="text-danger"></span>
+                        </div>
+
+                        <!-- Main Image -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Main Image</label>
+                            <input asp-for="Movie.MainImg" type="file" name="MainImgFile" class="form-control" required />
+
+                        </div>
+
+                        <!-- Sub Images -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Sub Images</label>
+                            <input type="file" name="SubImgs" class="form-control" multiple />
+                        </div>
+
+                        <!-- Release Date -->
+                        <div class="mb-3">
+                            <label asp-for="Movie.DateTime" class="form-label fw-semibold">Release Date</label>
+                            <input asp-for="Movie.DateTime" type="date" class="form-control" />
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select asp-for="Movie.CategoryId" class="form-select">
+                                <option disabled selected value="">-- Select Category --</option>
+                                @foreach (var item in Model.Categories!)
+                                {
+                                    <option value="@item.CategoryId">@item.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Movie.CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Cinema -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Cinema</label>
+                            <select asp-for="Movie.CinemaId" class="form-select">
+                                <option disabled selected value="">-- Select Cinema --</option>
+                                @foreach (var item in Model.Cinemas!)
+                                {
+                                    <option value="@item.CinemaId">@item.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Movie.CinemaId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Actors -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Actors</label>
+                            <select name="SelectedActors" class="form-select" multiple>
+                                @foreach (var actor in Model.Actors!)
+                                {
+                                    <option value="@actor.Id">@actor.Name</option>
+                                }
+                            </select>
+                            <small class="text-muted">Hold Ctrl (Cmd ⌘ on Mac) to select multiple</small>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label asp-for="Movie.Status" class="form-label fw-semibold">Status</label>
+                            <select asp-for="Movie.Status" class="form-select">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/Admin/Movies/Index" class="btn btn-secondary px-4">Back</a>
+                            <button type="submit" class="btn btn-success px-4">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_NotificationPartial" />
+}
