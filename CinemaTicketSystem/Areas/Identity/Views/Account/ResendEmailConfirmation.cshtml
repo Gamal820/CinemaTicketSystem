@@ -1,0 +1,46 @@
+﻿@model CinemaTicketSystem.ViewModels.ResendEmailConfirmationVM
+
+@{
+    ViewData["Title"] = "Resend Email Confirmation";
+}
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-lg border-0 rounded-4 p-4" style="width: 450px;">
+        <div class="card-body">
+            <h2 class="text-center text-primary mb-3">
+                📧 Resend Email Confirmation
+            </h2>
+            <p class="text-muted text-center mb-4">
+                Enter your <strong>username</strong> or <strong>email</strong> below and we’ll resend your confirmation link.
+            </p>
+
+            <form asp-action="ResendEmailConfirmation" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="UserNameOREmail" class="form-label fw-semibold"></label>
+                    <input asp-for="UserNameOREmail" class="form-control form-control-lg rounded-3 shadow-sm" placeholder="Enter your username or email" />
+                    <span asp-validation-for="UserNameOREmail" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-3">
+                        🔄 Send Confirmation Link
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4">
+                <a asp-action="Login" class="text-decoration-none fw-semibold">
+                    ← Back to Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

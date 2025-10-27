@@ -1,5 +1,11 @@
-using CinemaTicketSystem.DataAccess;
+﻿using CinemaTicketSystem.DataAccess;
+using CinemaTicketSystem.Models;
+using CinemaTicketSystem.Repositories;
+using CinemaTicketSystem.Repositories.IRepositories;
+using CinemaTicketSystem.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CinemaTicketSystem
 {
@@ -12,9 +18,11 @@ namespace CinemaTicketSystem
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // ? ��� ��� ����� ������ ��� DbContext
-            builder.Services.AddDbContext<ApplicationDBContext>(options =>
-                options.UseSqlServer("Data Source=DESKTOP-90TMC45\\MSSQLSERVER2;Initial Catalog=CinemaTicketSystem;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"));
+            var connectionString =
+                builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+            builder.Services.RegisterConfig(connectionString);
 
             var app = builder.Build();
 
@@ -27,21 +35,29 @@ namespace CinemaTicketSystem
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
 
-            // Routes for Areas
+            // ✅ دعم الـ Areas
             app.MapControllerRoute(
                 name: "areas",
                 pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
-            // Default route (Admin area)
+            // ✅ المسار الافتراضي — يدخل على لوحة الإدارة مباشرة
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Dashboard}/{action=Index}/{id?}",
-                defaults: new { area = "Admin" })
+                defaults: new { area = "Admin" }) // ← هنا بنحدد منطقة الـ Admin
                 .WithStaticAssets();
+
+            // ✅ أول ما يفتح الموقع "/" → يروح على لوحة الإدارة
+            app.MapGet("/", context =>
+            {
+                context.Response.Redirect("/Admin/Dashboard/Index");
+                return Task.CompletedTask;
+            });
 
             app.Run();
         }

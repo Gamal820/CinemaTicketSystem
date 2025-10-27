@@ -1,5 +1,8 @@
 ﻿using CinemaTicketSystem.DataAccess;
 using CinemaTicketSystem.Models;
+using CinemaTicketSystem.Repositories;
+using CinemaTicketSystem.Repositories.IRepositories;
+using CinemaTicketSystem.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,30 +11,29 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
     [Area("Admin")]
     public class CinemaController : Controller
     {
-        private readonly ApplicationDBContext _context;
-
-        public CinemaController(ApplicationDBContext context)
+        //Repository<Cinema> _cinemaRepository = new();
+      private readonly  IRepository<Cinema> _cinemaRepository;//=new Repository<Cinema> () ;
+        public CinemaController(IRepository<Cinema> cinemarepository)
         {
-            _context = context;
+            _cinemaRepository= cinemarepository;
         }
-
-        public IActionResult Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, CancellationToken cancellationToken = default)
         {
             int pageSize = 3; // عدد السينمات في كل صفحة
             if (page < 1) page = 1;
 
-            int totalCinemas = _context.Cinemas.Count();
+            var allCinemas = await _cinemaRepository.GetAsync(tracked: false, cancellationToken: cancellationToken);
+            int totalCinemas = allCinemas.Count();
             int totalPages = (int)Math.Ceiling((double)totalCinemas / pageSize);
 
             if (page > totalPages && totalPages > 0)
                 page = totalPages;
 
-            var cinemas = _context.Cinemas
-                .AsNoTracking()
+            var cinemas = allCinemas
                 .OrderBy(c => c.CinemaId)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(c => new CinemaTicketSystem.ViewModels.CinemaVM
+                .Select(c => new CinemaVM
                 {
                     CinemaId = c.CinemaId,
                     Name = c.Name,
@@ -39,13 +41,11 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                 })
                 .ToList();
 
-            // تمرير بيانات الصفحات للـ View
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
 
             return View(cinemas);
         }
-
 
         [HttpGet]
         public IActionResult Create()
@@ -54,7 +54,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Cinema cinema, IFormFile? ImgFile)
+        public async Task<IActionResult> Create(Cinema cinema, IFormFile? ImgFile, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -68,23 +68,23 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
-                    ImgFile.CopyTo(stream);
+                    await ImgFile.CopyToAsync(stream);
                 }
 
                 cinema.Img = fileName;
             }
 
-            _context.Cinemas.Add(cinema);
-            _context.SaveChanges();
+            await _cinemaRepository.AddAsync(cinema, cancellationToken);
+            await _cinemaRepository.CommitAsync(cancellationToken);
 
             TempData["success-notification"] = "Cinema added successfully!";
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken = default)
         {
-            var cinema = _context.Cinemas.FirstOrDefault(c => c.CinemaId == id);
+            var cinema = await _cinemaRepository.GetOneAsync(c => c.CinemaId == id, tracked: false, cancellationToken: cancellationToken);
 
             if (cinema is null)
                 return RedirectToAction("NotFoundPage", "Home");
@@ -93,14 +93,14 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Cinema cinema, IFormFile? NewImg)
+        public async Task<IActionResult> Edit(Cinema cinema, IFormFile? NewImg, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return View(cinema);
             }
 
-            var cinemaInDb = _context.Cinemas.AsNoTracking().FirstOrDefault(c => c.CinemaId == cinema.CinemaId);
+            var cinemaInDb = await _cinemaRepository.GetOneAsync(c => c.CinemaId == cinema.CinemaId, tracked: false, cancellationToken: cancellationToken);
             if (cinemaInDb is null)
                 return RedirectToAction("NotFoundPage", "Home");
 
@@ -111,7 +111,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
-                    NewImg.CopyTo(stream);
+                    await NewImg.CopyToAsync(stream);
                 }
 
                 // حذف الصورة القديمة
@@ -126,16 +126,16 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                 cinema.Img = cinemaInDb.Img;
             }
 
-            _context.Cinemas.Update(cinema);
-            _context.SaveChanges();
+            _cinemaRepository.Update(cinema,cancellationToken);
+            await _cinemaRepository.CommitAsync(cancellationToken);
 
             TempData["success-notification"] = "Cinema updated successfully!";
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
         {
-            var cinema = _context.Cinemas.FirstOrDefault(c => c.CinemaId == id);
+            var cinema = await _cinemaRepository.GetOneAsync(c => c.CinemaId == id, tracked: false, cancellationToken: cancellationToken);
 
             if (cinema is null)
                 return RedirectToAction("NotFoundPage", "Home");
@@ -144,8 +144,8 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
             if (System.IO.File.Exists(oldPath))
                 System.IO.File.Delete(oldPath);
 
-            _context.Cinemas.Remove(cinema);
-            _context.SaveChanges();
+            _cinemaRepository.Delete(cinema);
+            await _cinemaRepository.CommitAsync(cancellationToken);
 
             TempData["success-notification"] = "Cinema deleted successfully!";
             return RedirectToAction(nameof(Index));

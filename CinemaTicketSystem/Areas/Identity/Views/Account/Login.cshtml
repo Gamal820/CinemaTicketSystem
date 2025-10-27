@@ -1,0 +1,60 @@
+﻿@model CinemaTicketSystem.ViewModels.LoginVM
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg border-0 rounded-4 p-4" style="max-width: 500px; width: 100%;">
+        <h2 class="text-center text-primary fw-bold mb-4">🎬 Login to Cinema Ticket System</h2>
+        <p class="text-center text-muted mb-4">Welcome back! Please enter your details.</p>
+
+        @if (TempData["success-message"] != null)
+        {
+            <div class="alert alert-success text-center">
+                @TempData["success-message"]
+            </div>
+        }
+
+        @if (TempData["error-message"] != null)
+        {
+            <div class="alert alert-danger text-center">
+                @TempData["error-message"]
+            </div>
+        }
+
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="UserNameOREmail" class="form-label fw-semibold"></label>
+                <input asp-for="UserNameOREmail" class="form-control form-control-lg" placeholder="Enter your username or email" />
+                <span asp-validation-for="UserNameOREmail" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label fw-semibold"></label>
+                <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Enter your password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" asp-for="RememberMe" />
+                <label class="form-check-label" asp-for="RememberMe"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Login</button>
+
+            <div class="text-center mt-3">
+                <a asp-action="Register" class="text-decoration-none me-3">Register</a> |
+                <a asp-action="ForgetPassword" class="text-decoration-none ms-3">Forget Password?</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
