@@ -1,25 +1,50 @@
 ﻿using CinemaTicketSystem.DataAccess;
 using CinemaTicketSystem.Models;
 using CinemaTicketSystem.ViewModels;
+using CinemaTicketSystem.Repositories;  
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System.IO;
+using CinemaTicketSystem.Repositories.IRepositories;
 
 namespace CinemaTicketSystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class MoviesController : Controller
     {
-        private readonly ApplicationDBContext _context;
+        ApplicationDBContext _context; //= new();
+        private readonly IRepository<Movie> _movieRepository;//=new MovieRepository() ;
 
-        public MoviesController(ApplicationDBContext context)
+        private readonly IRepository<Category> _categoryRepository;//= new MovieRepository();
+
+        private readonly IRepository<Cinema> _cinemaRepository;//= new MovieRepository();
+        private readonly IRepository<Actor> _actorRepository;//= new MovieRepository();
+        private readonly IMovieActorRepository _movieActorRepository;//= new MovieRepository();
+        private readonly IRepository<MovieSubImage> _movieSubImageRepository;//= new MovieRepository();
+
+        public MoviesController(ApplicationDBContext context, IRepository<Movie> movieRepository, IRepository<Category> categoryRepository, IRepository<Cinema> cinemaRepository, IRepository<Actor> actorRepository, 
+            IMovieActorRepository movieActorRepository, IRepository<MovieSubImage> movieSubImageRepository)
         {
             _context = context;
+            _movieRepository = movieRepository;
+            _categoryRepository = categoryRepository;
+            _cinemaRepository = cinemaRepository;
+            _actorRepository = actorRepository;
+            _movieActorRepository = movieActorRepository;
+            _movieSubImageRepository = movieSubImageRepository;
         }
 
+
+
+
+        // لا حاجة لـ Constructor الآن لتهيئة الـ Context أو Repositories
+
         // ================= INDEX ==================
-        public IActionResult Index(string? name, int? categoryId, int? cinemaId, int page = 1)
+        public async Task<IActionResult> Index(string? name, int? categoryId, int? cinemaId, int page = 1)
         {
-            var query = _context.Movies
+            // نستخدم _context مباشرة للـ IQueryable المعقدة
+            var moviesQuery = _context.Movies
                 .Include(m => m.Category)
                 .Include(m => m.Cinema)
                 .AsQueryable();
@@ -27,34 +52,34 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
             #region Filters
             if (!string.IsNullOrWhiteSpace(name))
             {
-                query = query.Where(m => m.Name.Contains(name.Trim()));
+                moviesQuery = moviesQuery.Where(m => m.Name.Contains(name.Trim()));
                 ViewBag.name = name;
             }
 
             if (categoryId is not null)
             {
-                query = query.Where(m => m.CategoryId == categoryId);
+                moviesQuery = moviesQuery.Where(m => m.CategoryId == categoryId);
                 ViewBag.categoryId = categoryId;
             }
 
             if (cinemaId is not null)
             {
-                query = query.Where(m => m.CinemaId == cinemaId);
+                moviesQuery = moviesQuery.Where(m => m.CinemaId == cinemaId);
                 ViewBag.cinemaId = cinemaId;
             }
 
-            ViewBag.Categories = _context.Categories.ToList();
-            ViewBag.Cinemas = _context.Cinemas.ToList();
+            ViewBag.Categories = (await _categoryRepository.GetAsync()).ToList();
+            ViewBag.Cinemas = (await _cinemaRepository.GetAsync()).ToList();
             #endregion
 
             #region Pagination
             const int pageSize = 4;
-            int totalMovies = query.Count();
+            int totalMovies = await moviesQuery.CountAsync(); // استخدام Async
             ViewBag.TotalPages = Math.Ceiling(totalMovies / (double)pageSize);
             ViewBag.CurrentPage = page;
             #endregion
 
-            var movies = query
+            var movies = await moviesQuery
                 .OrderBy(m => m.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -64,25 +89,24 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                     Name = m.Name,
                     CategoryName = m.Category.Name,
                     CinemaName = m.Cinema.Name,
-                    //  لو مفيش صورة، استخدم واحدة افتراضية
                     MainImg = string.IsNullOrEmpty(m.MainImg) ? "no-image.jpg" : m.MainImg,
                     Price = m.Price,
                     Status = m.Status
                 })
-                .ToList();
+                .ToListAsync();
 
             return View(movies);
         }
 
         // ================= CREATE (GET) ==================
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             var vm = new MovieVM
             {
-                Categories = _context.Categories.ToList(),
-                Cinemas = _context.Cinemas.ToList(),
-                Actors = _context.Actors.ToList()
+                Categories = (await _categoryRepository.GetAsync()).ToList(),
+                Cinemas = (await _cinemaRepository.GetAsync()).ToList(),
+                Actors = (await _actorRepository.GetAsync()).ToList()
             };
 
             return View(vm);
@@ -90,7 +114,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
         // ================= CREATE (POST) ==================
         [HttpPost]
-        public IActionResult Create(Movie movie, IFormFile? MainImgFile, List<IFormFile>? SubImgs, List<int>? SelectedActors)
+        public async Task<IActionResult> Create(Movie movie, IFormFile? MainImgFile, List<IFormFile>? SubImgs, List<int>? SelectedActors)
         {
             using var transaction = _context.Database.BeginTransaction();
 
@@ -104,19 +128,20 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
                     using (var stream = System.IO.File.Create(filePath))
                     {
-                        MainImgFile.CopyTo(stream);
+                        await MainImgFile.CopyToAsync(stream);
                     }
 
                     movie.MainImg = fileName;
                 }
                 #endregion
 
-                _context.Movies.Add(movie);
-                _context.SaveChanges();
+                await _movieRepository.AddAsync(movie);
+                await _movieRepository.CommitAsync();
 
                 #region Sub Images
                 if (SubImgs != null && SubImgs.Any())
                 {
+                    var subImagesList = new List<MovieSubImage>();
                     foreach (var item in SubImgs)
                     {
                         var fileName = Guid.NewGuid() + Path.GetExtension(item.FileName);
@@ -124,16 +149,17 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
                         using (var stream = System.IO.File.Create(filePath))
                         {
-                            item.CopyTo(stream);
+                            await item.CopyToAsync(stream);
                         }
 
-                        _context.MovieSubImages.Add(new MovieSubImage
+                        subImagesList.Add(new MovieSubImage
                         {
                             MovieId = movie.Id,
                             Img = fileName
                         });
                     }
-                    _context.SaveChanges();
+                    _context.MovieSubImages.AddRange(subImagesList);
+                    await _movieSubImageRepository.CommitAsync();
                 }
                 #endregion
 
@@ -148,16 +174,16 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                             ActorId = actorId
                         });
                     }
-                    _context.SaveChanges();
+                    await _movieActorRepository.CommitAsync();
                 }
                 #endregion
 
-                transaction.Commit();
+                await transaction.CommitAsync();
                 TempData["success-notification"] = "Movie added successfully!";
             }
             catch
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 TempData["error-notification"] = "Error while saving movie.";
             }
 
@@ -166,12 +192,16 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
         // ================= EDIT (GET) ==================
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var movie = _context.Movies
-                .Include(m => m.MovieActors)
-                .Include(m => m.MovieSubImages)
-                .FirstOrDefault(m => m.Id == id);
+            // استخدام GetOneAsync من الـ Repository
+            var movie = await _movieRepository.GetOneAsync(
+                expression: m => m.Id == id,
+                includes: new Expression<Func<Movie, object>>[]
+                {
+                    m => m.MovieActors,
+                    m => m.MovieSubImages
+                });
 
             if (movie == null)
                 return RedirectToAction("NotFoundPage", "Home");
@@ -179,9 +209,9 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
             var vm = new MovieVM
             {
                 Movie = movie,
-                Categories = _context.Categories.ToList(),
-                Cinemas = _context.Cinemas.ToList(),
-                Actors = _context.Actors.ToList(),
+                Categories = (await _categoryRepository.GetAsync()).ToList(),
+                Cinemas = (await _cinemaRepository.GetAsync()).ToList(),
+                Actors = (await _actorRepository.GetAsync()).ToList(),
                 SelectedActors = movie.MovieActors.Select(a => a.ActorId).ToList()
             };
 
@@ -190,23 +220,26 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
         // ================= EDIT (POST) ==================
         [HttpPost]
-        public IActionResult Edit(Movie movie, IFormFile? MainImgFile, List<IFormFile>? SubImgs, List<int>? SelectedActors)
+        public async Task<IActionResult> Edit(Movie movie, IFormFile? MainImgFile, List<IFormFile>? SubImgs, List<int>? SelectedActors)
         {
-            var movieInDb = _context.Movies
-                .Include(m => m.MovieActors)
-                .Include(m => m.MovieSubImages)
-                .FirstOrDefault(m => m.Id == movie.Id);
+            // استخدام GetOneAsync من الـ Repository
+            var movieInDb = await _movieRepository.GetOneAsync(
+                expression: m => m.Id == movie.Id,
+                includes: new Expression<Func<Movie, object>>[]
+                {
+                    m => m.MovieActors,
+                    m => m.MovieSubImages
+                });
 
             if (movieInDb == null)
                 return RedirectToAction("NotFoundPage", "Home");
 
-            //  نحدّث باقي القيم
+            // نحدّث باقي القيم (لا يمكن استخدام SetValues إلا مع Context مباشر)
             _context.Entry(movieInDb).CurrentValues.SetValues(movie);
 
             #region Update Main Image
             if (MainImgFile != null && MainImgFile.Length > 0)
             {
-                // حذف الصورة القديمة
                 if (!string.IsNullOrEmpty(movieInDb.MainImg))
                 {
                     var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/movies", movieInDb.MainImg);
@@ -214,25 +247,24 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                         System.IO.File.Delete(oldPath);
                 }
 
-                // رفع الصورة الجديدة
                 var fileName = Guid.NewGuid() + Path.GetExtension(MainImgFile.FileName);
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/movies", fileName);
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
-                    MainImgFile.CopyTo(stream);
+                    await MainImgFile.CopyToAsync(stream);
                 }
 
                 movieInDb.MainImg = fileName;
             }
-            //  لو المستخدم ما رفعش صورة جديدة، نحتفظ بالقديمة
             else
             {
                 movieInDb.MainImg = movieInDb.MainImg;
             }
             #endregion
 
-            _context.SaveChanges();
+            _movieRepository.Update(movieInDb, CancellationToken.None);
+            await _movieRepository.CommitAsync();
 
             #region Sub Images
             if (SubImgs != null && SubImgs.Any())
@@ -244,7 +276,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
                     using (var stream = System.IO.File.Create(filePath))
                     {
-                        item.CopyTo(stream);
+                        await item.CopyToAsync(stream);
                     }
 
                     _context.MovieSubImages.Add(new MovieSubImage
@@ -253,12 +285,14 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                         MovieId = movie.Id
                     });
                 }
-                _context.SaveChanges();
+                await _movieSubImageRepository.CommitAsync();
             }
             #endregion
 
             #region MovieActors
             _context.MovieActors.RemoveRange(movieInDb.MovieActors);
+            await _movieActorRepository.CommitAsync();
+
             if (SelectedActors != null)
             {
                 foreach (var actorId in SelectedActors)
@@ -269,7 +303,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                         ActorId = actorId
                     });
                 }
-                _context.SaveChanges();
+                await _movieActorRepository.CommitAsync();
             }
             #endregion
 
@@ -278,15 +312,19 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         // ================= DELETE ==================
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var movie = _context.Movies
-                .Include(m => m.MovieSubImages)
-                .FirstOrDefault(m => m.Id == id);
+            var movie = await _movieRepository.GetOneAsync(
+                expression: m => m.Id == id,
+                includes: new Expression<Func<Movie, object>>[]
+                {
+                    m => m.MovieSubImages
+                });
 
             if (movie == null)
                 return RedirectToAction("NotFoundPage", "Home");
 
+            // حذف الملفات (عملية نظام ملفات)
             var mainPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/movies", movie.MainImg);
             if (System.IO.File.Exists(mainPath))
                 System.IO.File.Delete(mainPath);
@@ -298,30 +336,31 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                     System.IO.File.Delete(subPath);
             }
 
-            _context.Movies.Remove(movie);
-            _context.SaveChanges();
+            _movieRepository.Delete(movie);
+            await _movieRepository.CommitAsync();
 
             TempData["success-notification"] = "Movie deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 
         // ================= DELETE SUB IMAGE ==================
-        public IActionResult DeleteSubImg(int movieId, string img)
+        public async Task<IActionResult> DeleteSubImg(int movieId, string img)
         {
             if (string.IsNullOrEmpty(img))
                 return RedirectToAction(nameof(Edit), new { id = movieId });
 
-            var subImg = _context.MovieSubImages.FirstOrDefault(s => s.MovieId == movieId && s.Img == img);
+            var subImg = await _movieSubImageRepository.GetOneAsync(s => s.MovieId == movieId && s.Img == img);
 
             if (subImg == null)
                 return RedirectToAction(nameof(Edit), new { id = movieId });
 
+            // حذف الملف
             var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/movies/sub", subImg.Img);
             if (System.IO.File.Exists(path))
                 System.IO.File.Delete(path);
 
-            _context.MovieSubImages.Remove(subImg);
-            _context.SaveChanges();
+            _movieSubImageRepository.Delete(subImg);
+            await _movieSubImageRepository.CommitAsync();
 
             return RedirectToAction(nameof(Edit), new { id = movieId });
         }

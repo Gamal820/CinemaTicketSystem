@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Movie>
+@{
+    ViewData["Title"] = ViewBag.CategoryName + " Movies";
+}
+
+<!-- العنوان -->
+<header class="bg-primary py-5 mb-4 text-white text-center">
+    <h1 class="fw-bold">🎭 @ViewBag.CategoryName Movies</h1>
+</header>
+
+<section class="container mb-5">
+    @if (!Model.Any())
+    {
+        <p class="text-center text-muted fs-5">No movies available in this category.</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            @foreach (var movie in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="ratio ratio-4x3 bg-light d-flex align-items-center justify-content-center overflow-hidden">
+                            <img src="~/images/movies/@movie.MainImg"
+                                 alt="@movie.Name"
+                                 class="img-fluid"
+                                 style="object-fit: cover; width: 100%; height: 100%;" />
+                        </div>
+
+                        <div class="card-body text-center">
+                            <h5 class="card-title fw-bold mb-2">@movie.Name</h5>
+                            <p class="text-muted mb-1">🏢 @movie.Cinema?.Name</p>
+                            <p class="fw-semibold text-success mb-2">@movie.Price.ToString("C")</p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 text-center">
+                            <a asp-area="Customer"
+                               asp-controller="Customer"
+                               asp-action="Details"
+                               asp-route-id="@movie.Id"
+                               class="btn btn-outline-dark btn-sm px-3">
+                                👁️ View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- ✅ Pagination -->
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       href="?page=@(ViewBag.CurrentPage - 1)">
+                        Previous
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="?page=@i">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       href="?page=@(ViewBag.CurrentPage + 1)">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</section>
+
+<style>
+    .card img {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover img {
+        transform: scale(1.05);
+    }
+
+    .pagination .page-link {
+        color: #0d6efd;
+    }
+
+    .pagination .active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+</style>
