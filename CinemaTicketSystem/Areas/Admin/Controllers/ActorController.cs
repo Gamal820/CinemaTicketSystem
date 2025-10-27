@@ -1,44 +1,39 @@
 ﻿using CinemaTicketSystem.DataAccess;
 using CinemaTicketSystem.Models;
-using CinemaTicketSystem.ViewModels;
+using CinemaTicketSystem.Repositories;
+using CinemaTicketSystem.Repositories.IRepositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+ using System.Threading;
+using System.Threading.Tasks;
 
 namespace CinemaTicketSystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class ActorController : Controller
     {
-        private readonly ApplicationDBContext _context;
-
-        public ActorController(ApplicationDBContext context)
+        
+       private readonly IRepository<Actor> _actorRepository;
+        public ActorController(IRepository<Actor> actorrepository)
         {
-            _context = context;
+            _actorRepository= actorrepository;
         }
-
-        public IActionResult Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, CancellationToken cancellationToken = default)
         {
             int pageSize = 6;
             if (page < 1) page = 1;
 
-            int totalActors = _context.Actors.Count();
+            var allActors = await _actorRepository.GetAsync(tracked: false, cancellationToken: cancellationToken);
+            int totalActors = allActors.Count();
             int totalPages = (int)Math.Ceiling((double)totalActors / pageSize);
 
             if (page > totalPages && totalPages > 0)
                 page = totalPages;
 
-            var actors = _context.Actors
-                .AsNoTracking()
+            var actors = allActors
                 .OrderBy(a => a.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(a => new Actor
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Img = a.Img,
-                    Bio = a.Bio
-                })
                 .ToList();
 
             ViewBag.CurrentPage = page;
@@ -54,7 +49,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Actor actor, IFormFile? ImgFile)
+        public async Task<IActionResult> Create(Actor actor, IFormFile? ImgFile, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
                 return View(actor);
@@ -66,23 +61,23 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
-                    ImgFile.CopyTo(stream);
+                    await ImgFile.CopyToAsync(stream, cancellationToken);
                 }
 
                 actor.Img = fileName;
             }
 
-            _context.Actors.Add(actor);
-            _context.SaveChanges();
+            await _actorRepository.AddAsync(actor, cancellationToken);
+            await _actorRepository.CommitAsync(cancellationToken);
 
             TempData["success-notification"] = "Actor added successfully!";
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
-            var actor = _context.Actors.FirstOrDefault(a => a.Id == id);
+            var actor = await _actorRepository.GetOneAsync(a => a.Id == id, tracked: false, cancellationToken: cancellationToken);
             if (actor == null)
                 return RedirectToAction("NotFoundPage", "Home");
 
@@ -90,12 +85,12 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Actor actor, IFormFile? NewImg)
+        public async Task<IActionResult> Edit(Actor actor, IFormFile? NewImg, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
                 return View(actor);
 
-            var actorInDb = _context.Actors.AsNoTracking().FirstOrDefault(a => a.Id == actor.Id);
+            var actorInDb = await _actorRepository.GetOneAsync(a => a.Id == actor.Id, tracked: false, cancellationToken: cancellationToken);
             if (actorInDb == null)
                 return RedirectToAction("NotFoundPage", "Home");
 
@@ -106,7 +101,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
-                    NewImg.CopyTo(stream);
+                    await NewImg.CopyToAsync(stream, cancellationToken);
                 }
 
                 var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/ActorImages", actorInDb.Img);
@@ -120,16 +115,16 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
                 actor.Img = actorInDb.Img;
             }
 
-            _context.Actors.Update(actor);
-            _context.SaveChanges();
+            _actorRepository.Update(actor,cancellationToken);
+            await _actorRepository.CommitAsync(cancellationToken);
 
             TempData["success-notification"] = "Actor updated successfully!";
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var actor = _context.Actors.FirstOrDefault(a => a.Id == id);
+            var actor = await _actorRepository.GetOneAsync(a => a.Id == id, tracked: false, cancellationToken: cancellationToken);
             if (actor == null)
                 return RedirectToAction("NotFoundPage", "Home");
 
@@ -137,8 +132,8 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
             if (System.IO.File.Exists(oldPath))
                 System.IO.File.Delete(oldPath);
 
-            _context.Actors.Remove(actor);
-            _context.SaveChanges();
+            _actorRepository.Delete(actor);
+            await _actorRepository.CommitAsync(cancellationToken);
 
             TempData["success-notification"] = "Actor deleted successfully!";
             return RedirectToAction(nameof(Index));

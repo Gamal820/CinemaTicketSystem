@@ -1,0 +1,73 @@
+﻿@model CinemaTicketSystem.ViewModels.ValidateOTPVM
+
+@{
+    ViewData["Title"] = "Validate OTP";
+}
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-lg border-0 rounded-4 p-4" style="width: 420px;">
+        <div class="card-body text-center">
+
+            <!-- ✅ رسائل النجاح أو الخطأ -->
+            @if (TempData["success-message"] != null)
+            {
+                <div id="success-alert" class="alert alert-success alert-dismissible fade show text-start" role="alert">
+                    <strong>✔️ Success!</strong> @TempData["success-message"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                 
+            }
+
+            @if (TempData["error-message"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show text-start" role="alert">
+                    <strong>❌ Error!</strong> @TempData["error-message"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- ✅ عنوان الصفحة -->
+            <h2 class="text-primary mb-3">🔐 Validate OTP</h2>
+            <p class="text-muted mb-4">
+                Please enter the <strong>OTP code</strong> sent to your email to verify your account.
+            </p>
+
+            <!-- ✅ نموذج الإدخال -->
+            <form asp-action="ValidateOTP" method="post" novalidate>
+                <input type="hidden" name="ApplicationUserId" value="@Model.ApplicationUserId" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="OTP" class="form-label fw-semibold"></label>
+                    <input asp-for="OTP"
+                           class="form-control form-control-lg text-center rounded-3 shadow-sm"
+                           placeholder="Enter your OTP code"
+                           maxlength="6" />
+                    <span asp-validation-for="OTP" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-success btn-lg rounded-3">
+                        ✅ Verify OTP
+                    </button>
+                </div>
+
+                <div>
+                    <a asp-action="ResendEmailConfirmation" class="text-decoration-none">
+                        Didn’t receive the code? <strong>Resend</strong>
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+     
