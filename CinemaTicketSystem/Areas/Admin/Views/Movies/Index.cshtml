@@ -1,22 +1,26 @@
 ﻿@model IEnumerable<CinemaTicketSystem.ViewModels.MovieVM>
 
 <div class="container my-4">
+    <!-- Header -->
     <div class="row mb-3 align-items-center">
         <div class="col-md-6">
-            <h2 class="display-6 fw-bold">All Movies</h2>
+            <h2 class="display-6 fw-bold">🎬 All Movies</h2>
         </div>
         <div class="col-md-6 text-md-end text-start mt-2 mt-md-0">
-            <a href="/Admin/Movies/Create" class="btn btn-success px-4">Create</a>
+            <a href="/Admin/Movies/Create" class="btn btn-success px-4">➕ Create</a>
         </div>
     </div>
 
+    <!-- Movies Grid -->
     <div class="row g-4">
         @foreach (var item in Model)
         {
-            <div class="col-md-6 col-sm-12">
+            <div class="col-md-6 col-lg-4 col-sm-12">
                 <div class="card border-0 h-100 shadow-sm">
-                    <img src="@Url.Content("~/images/movies/" + item.MainImg)"
-                         class="card-img-top" alt="@item.Name"
+                    <!-- ✅ Correct image path -->
+                    <img src="~/images/movies/@item.MainImg"
+                         class="card-img-top"
+                         alt="@item.Name"
                          style="height:350px; object-fit:cover;" />
 
                     <div class="card-body text-center">
@@ -25,6 +29,7 @@
                         <p class="text-muted mb-1">📂 @item.CategoryName</p>
                         <p class="fw-semibold text-dark">@item.Price.ToString("C")</p>
 
+                        <!-- Status -->
                         @if (item.Status)
                         {
                             <span class="badge bg-success">Active</span>
@@ -34,9 +39,14 @@
                             <span class="badge bg-danger">Inactive</span>
                         }
 
+                        <!-- Action Buttons -->
                         <div class="d-flex justify-content-center gap-2 mt-3">
-                            <a href="/Admin/Movies/Edit/@item.Id" class="btn btn-warning btn-sm px-3">Edit</a>
-                            <a href="/Admin/Movies/Delete/@item.Id" class="btn btn-danger btn-sm px-3 btn-delete">Delete</a>
+                            <a href="/Admin/Movies/Edit/@item.Id" class="btn btn-warning btn-sm px-3">
+                                ✏️ Edit
+                            </a>
+                            <a href="/Admin/Movies/Delete/@item.Id" class="btn btn-danger btn-sm px-3 btn-delete">
+                                🗑️ Delete
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -65,13 +75,16 @@
     </nav>
 </div>
 
+<!-- ✅ SweetAlert Delete Confirmation -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const deleteButtons = document.querySelectorAll(".btn-delete");
+
         deleteButtons.forEach(button => {
             button.addEventListener("click", function (e) {
                 e.preventDefault();
                 const url = this.getAttribute("href");
+
                 Swal.fire({
                     title: "Are you sure?",
                     text: "This action cannot be undone!",
@@ -85,9 +98,13 @@
                         Swal.fire({
                             title: "Deleted!",
                             text: "Movie deleted successfully.",
-                            icon: "success"
+                            icon: "success",
+                            timer: 1200,
+                            showConfirmButton: false
                         });
-                        window.location.href = url;
+                        setTimeout(() => {
+                            window.location.href = url;
+                        }, 1200);
                     }
                 });
             });

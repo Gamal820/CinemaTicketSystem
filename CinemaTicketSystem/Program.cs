@@ -1,5 +1,10 @@
 using CinemaTicketSystem.DataAccess;
+using CinemaTicketSystem.Models;
+using CinemaTicketSystem.Repositories;
+using CinemaTicketSystem.Repositories.IRepositories;
+using CinemaTicketSystem.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CinemaTicketSystem
 {
@@ -8,13 +13,23 @@ namespace CinemaTicketSystem
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+           
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // ? √÷› Â–« «·”ÿ— · ”ÃÌ· «·‹ DbContext
-            builder.Services.AddDbContext<ApplicationDBContext>(options =>
-                options.UseSqlServer("Data Source=DESKTOP-90TMC45\\MSSQLSERVER2;Initial Catalog=CinemaTicketSystem;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"));
+          
+            var connectionString =
+               builder.Configuration.GetConnectionString("DefaultConnection")
+                   ?? throw new InvalidOperationException("Connection string"
+                   + "'DefaultConnection' not found.");
+
+
+            builder.Services.RegisterConfig(connectionString);
+
+
+
+
 
             var app = builder.Build();
 

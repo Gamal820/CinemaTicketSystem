@@ -1,0 +1,132 @@
+﻿@model IEnumerable<Movie>
+@{
+    ViewData["Title"] = "Movies List";
+}
+
+<!-- Header -->
+<header class="bg-dark py-5 text-center text-white">
+    <div class="container">
+        <h1 class="display-5 fw-bold">🎬 Explore Our Movies</h1>
+        <p class="lead text-white-50">Find your favorite film and enjoy the show!</p>
+    </div>
+</header>
+
+<!-- Filter Bar -->
+<section class="py-3 bg-light">
+    <div class="container">
+        <form method="get">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <input type="text" name="name" value="@Context.Request.Query["name"]" class="form-control" placeholder="Search by name..." />
+                </div>
+
+                <!-- Category Filter -->
+                <div class="col-md-2">
+                    <select name="categoryId" class="form-select">
+                        <option value="">🎭 Category</option>
+                        @foreach (var c in ViewBag.Categories)
+                        {
+                            <option value="@c.CategoryId" selected="@(Context.Request.Query["categoryId"].ToString() == c.CategoryId.ToString())">@c.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Cinema Filter -->
+                <div class="col-md-2">
+                    <select name="cinemaId" class="form-select">
+                        <option value="">🏢 Cinema</option>
+                        @foreach (var c in ViewBag.Cinemas)
+                        {
+                            <option value="@c.CinemaId" selected="@(Context.Request.Query["cinemaId"].ToString() == c.CinemaId.ToString())">@c.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <input type="number" name="minPrice" value="@Context.Request.Query["minPrice"]" class="form-control" placeholder="Min Price" />
+                </div>
+
+                <div class="col-md-2">
+                    <input type="number" name="maxPrice" value="@Context.Request.Query["maxPrice"]" class="form-control" placeholder="Max Price" />
+                </div>
+
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-dark w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Movies Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            @foreach (var movie in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <img src="~/images/movies/@movie.MainImg"
+                             class="card-img-top"
+                             alt="@movie.Name"
+                             style="width:100%; height:300px; object-fit:cover;" />
+
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@movie.Name</h5>
+                            <p class="text-muted mb-1">🎟️ Cinema: @movie.Cinema?.Name</p>
+                            <p class="mb-1">
+                                Category:
+                                <a asp-area="Customer"
+                                   asp-controller="Customer"
+                                   asp-action="Category"
+                                   asp-route-id="@movie.CategoryId"
+                                   class="text-decoration-none text-primary fw-semibold">
+                                    @movie.Category?.Name
+                                </a>
+                            </p>
+                            <p class="fw-bold text-success">💰 @movie.Price.ToString("c")</p>
+                        </div>
+
+                        <div class="card-footer text-center bg-transparent border-top-0">
+                            <a asp-area="Customer"
+                               asp-controller="Customer"
+                               asp-action="Details"
+                               asp-route-id="@movie.Id"
+                               class="btn btn-outline-dark btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            <nav>
+                <ul class="pagination">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1 })">Previous</a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                        </li>
+                    }
+
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1 })">Next</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
