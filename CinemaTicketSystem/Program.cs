@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 ﻿using CinemaTicketSystem.DataAccess;
+=======
+using CinemaTicketSystem.DataAccess;
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
 using CinemaTicketSystem.Models;
 using CinemaTicketSystem.Repositories;
 using CinemaTicketSystem.Repositories.IRepositories;
 using CinemaTicketSystem.Services;
+<<<<<<< HEAD
 using Microsoft.AspNetCore.Identity;
+=======
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,15 +21,31 @@ namespace CinemaTicketSystem
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+           
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+<<<<<<< HEAD
             var connectionString =
                 builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             builder.Services.RegisterConfig(connectionString);
+=======
+          
+            var connectionString =
+               builder.Configuration.GetConnectionString("DefaultConnection")
+                   ?? throw new InvalidOperationException("Connection string"
+                   + "'DefaultConnection' not found.");
+
+
+            builder.Services.RegisterConfig(connectionString);
+
+
+
+
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
 
             var app = builder.Build();
 

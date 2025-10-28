@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using CinemaTicketSystem.Models;
 using CinemaTicketSystem.Repositories.IRepositories;
 using CinemaTicketSystem.ViewModels;
@@ -23,10 +24,20 @@ namespace CinemaTicketSystem.Areas.Identity.Controllers
             _applicationUserOTPRepository = applicationUserOTPRepository;
         }
 
+=======
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace CinemaTicketSystem.Areas.Identity.Controllers
+{
+    public class AccountController : Controller
+    {
+        [Area("Identity")]
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
         public IActionResult Register()
         {
             return View();
         }
+<<<<<<< HEAD
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM registerVM)
@@ -270,3 +281,7 @@ namespace CinemaTicketSystem.Areas.Identity.Controllers
 
     }
 }
+=======
+    }
+}
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
