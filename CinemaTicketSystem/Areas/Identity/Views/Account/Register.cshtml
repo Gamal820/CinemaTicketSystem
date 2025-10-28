@@ -1,6 +1,7 @@
 ﻿@model CinemaTicketSystem.ViewModels.RegisterVM
 
 @{
+<<<<<<< HEAD
     ViewData["Title"] = "Create Account";
 }
 
@@ -71,6 +72,62 @@
                 <a asp-action="Login" asp-area="Identity" class="text-decoration-none fw-semibold">Login Here →</a>
             </div>
         </form>
+=======
+    ViewData["Title"] = "Register";
+}
+
+<div class="container">
+    <h1>Register</h1>
+
+    <h4>RegisterVM</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Register">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="FirstName" class="control-label"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastName" class="control-label"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="UserName" class="control-label"></label>
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password" class="control-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="control-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-3">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+    <div>
+        <a asp-action="Login">Login</a>
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
     </div>
 </div>
 
@@ -78,4 +135,8 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e

@@ -4,9 +4,12 @@ using CinemaTicketSystem.Repositories.IRepositories;
 using CinemaTicketSystem.Repositories;
 using CinemaTicketSystem.Services;
 using Microsoft.EntityFrameworkCore;
+<<<<<<< HEAD
 using CinemaTicketSystem.Utitlies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+=======
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
 
 namespace CinemaTicketSystem
 {
@@ -24,6 +27,7 @@ namespace CinemaTicketSystem
                 option.UseSqlServer(connection);
 
             });
+<<<<<<< HEAD
             Services.AddIdentity<ApplicationUser, IdentityRole>(option =>
             {
                 option.User.RequireUniqueEmail = true;
@@ -45,6 +49,11 @@ namespace CinemaTicketSystem
 
 
             Services.AddScoped<DashboardService>();
+=======
+
+
+             Services.AddScoped<DashboardService>();
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
             Services.AddScoped<IRepository<Category>, Repository<Category>>();
              Services.AddScoped<IRepository<Actor>, Repository<Actor>>();
              Services.AddScoped<IRepository<Cinema>, Repository<Cinema>>();
@@ -54,7 +63,10 @@ namespace CinemaTicketSystem
 
 
            Services.AddScoped<IRepository<MovieActor>, Repository<MovieActor>>();
+<<<<<<< HEAD
             Services.AddScoped<IRepository<ApplicationUserOTP>, Repository<ApplicationUserOTP>>();
+=======
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
 
         }
 

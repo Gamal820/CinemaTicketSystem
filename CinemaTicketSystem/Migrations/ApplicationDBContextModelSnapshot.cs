@@ -124,6 +124,7 @@ namespace CinemaTicketSystem.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("CinemaTicketSystem.Models.ApplicationUserOTP", b =>
                 {
                     b.Property<string>("Id")
@@ -153,6 +154,8 @@ namespace CinemaTicketSystem.Migrations
                     b.ToTable("ApplicationUserOTP");
                 });
 
+=======
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
             modelBuilder.Entity("CinemaTicketSystem.Models.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -445,6 +448,7 @@ namespace CinemaTicketSystem.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("CinemaTicketSystem.Models.ApplicationUserOTP", b =>
                 {
                     b.HasOne("CinemaTicketSystem.Models.ApplicationUser", "ApplicationUser")
@@ -456,6 +460,8 @@ namespace CinemaTicketSystem.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
+=======
+>>>>>>> c4f5c332a0ae232b974e9fce5ff9335b446aa44e
             modelBuilder.Entity("CinemaTicketSystem.Models.Movie", b =>
                 {
                     b.HasOne("CinemaTicketSystem.Models.Category", "Category")

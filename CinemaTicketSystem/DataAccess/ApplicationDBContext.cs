@@ -32,6 +32,17 @@ namespace CinemaTicketSystem.DataAccess
         //    optionsBuilder.UseSqlServer("Data Source=DESKTOP-90TMC45\\MSSQLSERVER2;Initial Catalog=CinemaTicketSystem;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False");
         //}
 
+
+
+        //public ApplicationDBContext()
+        //{ }
+        //  protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    base.OnConfiguring(optionsBuilder);
+
+        //    optionsBuilder.UseSqlServer("Data Source=DESKTOP-90TMC45\\MSSQLSERVER2;Initial Catalog=CinemaTicketSystem;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        //}
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(MovieActorEntityTypeConfiguration).Assembly);
