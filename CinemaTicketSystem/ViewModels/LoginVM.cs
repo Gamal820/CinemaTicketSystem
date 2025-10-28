@@ -4,6 +4,7 @@ namespace CinemaTicketSystem.ViewModels
 {
     public class LoginVM
     {
+
         public int Id { get; set; }
 
         [Required]
