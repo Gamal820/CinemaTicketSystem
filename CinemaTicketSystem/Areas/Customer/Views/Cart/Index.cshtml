@@ -1,0 +1,110 @@
+﻿@model IEnumerable<CinemaTicketSystem.Models.Cart>
+
+<section class="h-100">
+    <div class="container h-100 py-5">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-10">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-normal mb-0">🎬 Shopping Cart</h3>
+                    <div>
+                        <p class="mb-0">
+                            <span class="text-muted">Sort by:</span>
+                            <a href="#!" class="text-body">Price <i class="fas fa-angle-down mt-1"></i></a>
+                        </p>
+                    </div>
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info text-center">Your cart is empty 😢</div>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <div class="card rounded-3 mb-4 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="row d-flex justify-content-between align-items-center">
+                                    <div class="col-md-2 col-lg-2 col-xl-2">
+                                        <img src="~/images/movies/@item.Movie.MainImg"
+                                             class="img-fluid rounded-3" alt="@item.Movie.Name" />
+                                    </div>
+
+                                    <div class="col-md-3 col-lg-3 col-xl-3">
+                                        <p class="lead fw-normal mb-2">@item.Movie.Name</p>
+                                        <p class="text-muted mb-0">@item.Movie.Description</p>
+                                    </div>
+
+                                    <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+                                        <a asp-action="Increment" asp-route-id="@item.Id" class="btn btn-outline-secondary">+</a>
+
+                                        <input min="1" readonly
+                                               value="@item.Count"
+                                               type="number"
+                                               class="form-control form-control-sm mx-1 text-center" />
+
+                                        <a asp-action="Decrement" asp-route-id="@item.Id" class="btn btn-outline-secondary">-</a>
+                                    </div>
+
+                                    <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                        <h5 class="mb-0">@((item.Price * item.Count).ToString("C"))</h5>
+                                    </div>
+
+                                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                                        <form asp-action="Remove" method="post">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button class="btn btn-outline-danger btn-sm">🗑️</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="card mb-4">
+                        <div class="card-body p-4 d-flex flex-row">
+                            <form asp-action="ApplyCode" method="post" class="d-flex w-100">
+                                <div class="form-outline flex-fill">
+                                    <input name="code" type="text" class="form-control form-control-lg" placeholder="Discount code" />
+                                </div>
+                                <button type="submit" class="btn btn-outline-warning btn-lg ms-3">Apply</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    @if (ViewBag.Message != null)
+                    {
+                        <div class="alert alert-info text-center">@ViewBag.Message</div>
+                    }
+
+
+                    <div class="card">
+                        <div class="card-body text-end">
+                            @if (ViewBag.TotalBefore != null)
+                            {
+                                <div class="text-end">
+                                    <h5> Total Before Discount: <strong>@ViewBag.TotalBefore.ToString("C")</strong></h5>
+                                    <h5 class="text-success">🏷 Discount: <strong>@(ViewBag.Discount?.ToString("C"))</strong></h5>
+                                    <h4 class="mt-2"> Total After Discount: <strong>@ViewBag.TotalAfter.ToString("C")</strong></h4>
+                                </div>
+                            }
+                            else
+                            {
+                                <h4 class="mb-3">Total: <strong>@ViewBag.Total.ToString("C")</strong></h4>
+                            }
+
+
+
+                            <form asp-action="Pay" method="post">
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                     Proceed to Pay
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

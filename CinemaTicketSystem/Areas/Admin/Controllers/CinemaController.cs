@@ -2,13 +2,16 @@
 using CinemaTicketSystem.Models;
 using CinemaTicketSystem.Repositories;
 using CinemaTicketSystem.Repositories.IRepositories;
+using CinemaTicketSystem.Utitlies;
 using CinemaTicketSystem.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CinemaTicketSystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE},{SD.EMPLOYEE_ROLE},")]
     public class CinemaController : Controller
     {
         //Repository<Cinema> _cinemaRepository = new();
@@ -82,6 +85,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE}")]
         public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken = default)
         {
             var cinema = await _cinemaRepository.GetOneAsync(c => c.CinemaId == id, tracked: false, cancellationToken: cancellationToken);
@@ -93,6 +97,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Edit(Cinema cinema, IFormFile? NewImg, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -132,7 +137,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
             TempData["success-notification"] = "Cinema updated successfully!";
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
         {
             var cinema = await _cinemaRepository.GetOneAsync(c => c.CinemaId == id, tracked: false, cancellationToken: cancellationToken);

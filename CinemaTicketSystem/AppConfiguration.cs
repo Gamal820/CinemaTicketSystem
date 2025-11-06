@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using CinemaTicketSystem.Utitlies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using CinemaTicketSystem.Utitlies.DBInitilizer;
 
 namespace CinemaTicketSystem
 {
@@ -48,6 +49,8 @@ namespace CinemaTicketSystem
             Services.AddScoped<IRepository<MovieSubImage>, Repository<MovieSubImage>>();
             Services.AddScoped<IRepository<MovieActor>, Repository<MovieActor>>();
             Services.AddScoped<IRepository<ApplicationUserOTP>, Repository<ApplicationUserOTP>>();
+
+            Services.AddScoped<IDBInitializer, DBInitializer>();
         }
     }
 }

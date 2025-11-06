@@ -2,6 +2,8 @@
 using CinemaTicketSystem.Models;
 using CinemaTicketSystem.Repositories;
 using CinemaTicketSystem.Repositories.IRepositories;
+using CinemaTicketSystem.Utitlies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
  using System.Threading;
@@ -10,13 +12,14 @@ using System.Threading.Tasks;
 namespace CinemaTicketSystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE},{SD.EMPLOYEE_ROLE},")]
     public class ActorController : Controller
     {
-        
-       private readonly IRepository<Actor> _actorRepository;
+
+        private readonly IRepository<Actor> _actorRepository;
         public ActorController(IRepository<Actor> actorrepository)
         {
-            _actorRepository= actorrepository;
+            _actorRepository = actorrepository;
         }
         public async Task<IActionResult> Index(int page = 1, CancellationToken cancellationToken = default)
         {
@@ -85,6 +88,8 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
+
         public async Task<IActionResult> Edit(Actor actor, IFormFile? NewImg, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -122,6 +127,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var actor = await _actorRepository.GetOneAsync(a => a.Id == id, tracked: false, cancellationToken: cancellationToken);

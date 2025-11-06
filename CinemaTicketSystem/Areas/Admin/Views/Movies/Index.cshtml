@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CinemaTicketSystem.ViewModels.MovieVM>
+﻿@using CinemaTicketSystem.Utitlies
+@model IEnumerable<CinemaTicketSystem.ViewModels.MovieVM>
 
 <div class="container my-4">
     <!-- Header -->
@@ -19,9 +20,9 @@
                 <div class="card border-0 h-100 shadow-sm">
                     <!-- ✅ Correct image path -->
                     <img src="~/images/movies/@item.MainImg"
-                         class="card-img-top"
-                         alt="@item.Name"
-                         style="height:350px; object-fit:cover;" />
+                    class="card-img-top"
+                    alt="@item.Name"
+                    style="height:350px; object-fit:cover;" />
 
                     <div class="card-body text-center">
                         <h5 class="card-title mt-2">@item.Name</h5>
@@ -38,16 +39,23 @@
                         {
                             <span class="badge bg-danger">Inactive</span>
                         }
+                        @if (User.IsInRole(SD.SUPER_ADMIN_ROLE) || User.IsInRole(SD.ADMIN_ROLE))
+                        {
 
-                        <!-- Action Buttons -->
-                        <div class="d-flex justify-content-center gap-2 mt-3">
-                            <a href="/Admin/Movies/Edit/@item.Id" class="btn btn-warning btn-sm px-3">
-                                ✏️ Edit
-                            </a>
-                            <a href="/Admin/Movies/Delete/@item.Id" class="btn btn-danger btn-sm px-3 btn-delete">
-                                🗑️ Delete
-                            </a>
-                        </div>
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-center gap-2 mt-3">
+                                <a href="/Admin/Movies/Edit/@item.Id" class="btn btn-warning btn-sm px-3">
+                                    ✏️ Edit
+                                </a>
+                                <a href="/Admin/Movies/Delete/@item.Id" class="btn btn-danger btn-sm px-3 btn-delete">
+                                    🗑️ Delete
+                                </a>
+                            </div>
+                        }
+						else
+						{
+							<td>No Actions!</td>
+						}
                     </div>
                 </div>
             </div>

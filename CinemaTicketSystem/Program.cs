@@ -1,11 +1,11 @@
-using CinemaTicketSystem.DataAccess;
+using CinemaTicketSystem.Configurations;
 using CinemaTicketSystem.Models;
-using CinemaTicketSystem.Repositories;
 using CinemaTicketSystem.Repositories.IRepositories;
-using CinemaTicketSystem.Services;
+using CinemaTicketSystem.Utitlies.DBInitilizer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Stripe;
+using Microsoft.AspNetCore.Http;
+using CinemaTicketSystem.Utitlies;
 
 namespace CinemaTicketSystem
 {
@@ -14,19 +14,51 @@ namespace CinemaTicketSystem
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
-            // Add services to the container.
+
+            builder.Services.RegisterMapsterConfig();
             builder.Services.AddControllersWithViews();
 
-            var connectionString =
-                builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             builder.Services.RegisterConfig(connectionString);
 
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+            // ✅ التعامل الصحيح مع الكوكيز لمنع خطأ oauth state missing
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+
+            // ✅ External Login With Google (الصحيح)
+            builder.Services.AddAuthentication()
+                .AddGoogle(opt =>
+                {
+                    var googleAuth = builder.Configuration.GetSection("Authentication:Google");
+                    opt.ClientId = googleAuth["ClientId"] ?? "";
+                    opt.ClientSecret = googleAuth["ClientSecret"] ?? "";
+                    opt.CallbackPath = "/signin-google"; // مهم جداً
+                });
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // ✅ تشغيل DBInitializer
+            using (var scope = app.Services.CreateScope())
+            {
+                var service = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
+                service.Initialize();
+            }
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -34,25 +66,23 @@ namespace CinemaTicketSystem
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles(); // ✅ مهم
+
             app.UseRouting();
-            app.UseAuthentication();
+
+            app.UseAuthentication(); // ✅ لازم قبل Authorization
             app.UseAuthorization();
+            app.UseSession();
 
-            app.MapStaticAssets();
-
-            // ✅ دعم الـ Areas
             app.MapControllerRoute(
                 name: "areas",
                 pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
-            // ✅ المسار الافتراضي — يدخل على لوحة الإدارة مباشرة
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Dashboard}/{action=Index}/{id?}",
-                defaults: new { area = "Admin" }) // ← هنا بنحدد منطقة الـ Admin
-                .WithStaticAssets();
+                defaults: new { area = "Admin" });
 
-            // ✅ أول ما يفتح الموقع "/" → يروح على لوحة الإدارة
             app.MapGet("/", context =>
             {
                 context.Response.Redirect("/Admin/Dashboard/Index");

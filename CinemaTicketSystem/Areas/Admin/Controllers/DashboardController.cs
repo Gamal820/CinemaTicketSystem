@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CinemaTicketSystem.Services;
+using CinemaTicketSystem.Utitlies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CinemaMoviesystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    
     public class DashboardController : Controller
     {
         private readonly DashboardService _dashboardService;

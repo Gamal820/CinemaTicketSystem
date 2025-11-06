@@ -104,9 +104,10 @@
                                                 <span class="nav-link-text ps-1">Login</span>
                                             </div>
                                         </a>
-                                        </ul>
+                                        
                                         <!-- more inner pages-->
                                     </li>
+                                </ul>
 
                                 <ul class="nav collapse show" id="dashboard">
                                     <li class="nav-item">
@@ -151,29 +152,23 @@
                                         <!-- more inner pages-->
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="~/dashboard/project-management.html">
+                                        <a class="nav-link" href="/Admin/User/Index">
                                             <div class="d-flex align-items-center">
-                                                <span class="nav-link-text ps-1">Management</span>
+                                                <span class="nav-link-text ps-1">Users</span>
                                             </div>
                                         </a>
                                         <!-- more inner pages-->
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="~/dashboard/saas.html">
+                                       <li class="nav-item">
+                                        <a class="nav-link" href="/Admin/Promotion/Index">
                                             <div class="d-flex align-items-center">
-                                                <span class="nav-link-text ps-1">SaaS</span>
+                                                <span class="nav-link-text ps-1">Pormotion</span>
                                             </div>
                                         </a>
                                         <!-- more inner pages-->
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="~/dashboard/support-desk.html">
-                                            <div class="d-flex align-items-center">
-                                                <span class="nav-link-text ps-1">Support desk</span><span class="badge rounded-pill ms-2 badge-soft-success">New</span>
-                                            </div>
-                                        </a>
-                                        <!-- more inner pages-->
-                                    </li>
+                                     
+                                   
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -191,7 +186,7 @@
                                         <span class="nav-link-icon"><span class="fas fa-calendar-alt"></span></span><span class="nav-link-text ps-1">Calendar</span>
                                     </div>
                                 </a>
-                                <!-- parent pages--><a class="nav-link" href="~/app/chat.html" role="button">
+                                <!-- parent pages--><a class="nav-link" href="~/app/chat.html" role="button"> 
                                     <div class="d-flex align-items-center">
                                         <span class="nav-link-icon"><span class="fas fa-comments"></span></span><span class="nav-link-text ps-1">Chat</span>
                                     </div>
@@ -227,6 +222,52 @@
                                         <!-- more inner pages-->
                                     </li>
                                 </ul>
+                                <a class="nav-link dropdown-indicator" href="#email" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="email">
+                                    <div class="d-flex align-items-center">
+                                        <span class="nav-link-icon"><span class="fas fa-envelope-open"></span></span><span class="nav-link-text ps-1">Logins</span>
+                                    </div>
+                                </a>
+
+                                <ul class="nav collapse" id="email">
+                                    @if (!User.Identity.IsAuthenticated)
+                                    {
+                                        <!-- لو المستخدم مش عامل Login -->
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/Identity/Account/Login">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="nav-link-text ps-1">Login</span>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/Identity/Account/Register">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="nav-link-text ps-1">Register</span>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <!-- لو المستخدم عامل Login -->
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/Identity/Account/Logout">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="nav-link-text ps-1">Logout</span>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/Identity/Profile/Index">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="nav-link-text ps-1">Welcome @User.Identity.Name</span>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+
+
                                 <!-- parent pages--><a class="nav-link dropdown-indicator" href="#events" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="events">
                                     <div class="d-flex align-items-center">
                                         <span class="nav-link-icon"><span class="fas fa-calendar-day"></span></span><span class="nav-link-text ps-1">Events</span>
@@ -581,7 +622,7 @@
                                         <!-- more inner pages-->
                                         <ul class="nav collapse" id="simple">
                                             <li class="nav-item">
-                                                <a class="nav-link" href="~/pages/authentication/simple/login.html">
+                                                <a class="nav-link" href="/Identity/Account/Login">
                                                     <div class="d-flex align-items-center">
                                                         <span class="nav-link-text ps-1">Login</span>
                                                     </div>
@@ -589,7 +630,7 @@
                                                 <!-- more inner pages-->
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="~/pages/authentication/simple/logout.html">
+                                                <a class="nav-link" href="/Identity/Account/Logout">
                                                     <div class="d-flex align-items-center">
                                                         <span class="nav-link-text ps-1">Logout</span>
                                                     </div>
@@ -597,7 +638,7 @@
                                                 <!-- more inner pages-->
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="~/pages/authentication/simple/register.html">
+                                                <a class="nav-link" href="/Identity/Account/Register">
                                                     <div class="d-flex align-items-center">
                                                         <span class="nav-link-text ps-1">Register</span>
                                                     </div>

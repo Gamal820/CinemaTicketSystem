@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CinemaTicketSystem.Models.Actor>
+﻿@using CinemaTicketSystem.Utitlies
+@model IEnumerable<CinemaTicketSystem.Models.Actor>
 
 <div class="container my-4">
     <div class="row mb-3 align-items-center">
@@ -19,10 +20,17 @@
                     <div class="card-body text-center">
                         <h5 class="card-title mt-2">@item.Name</h5>
                         <p class="text-muted">@item.Bio</p>
-                        <div class="d-flex justify-content-center gap-2 mt-3">
-                            <a href="/Admin/Actor/Edit/@item.Id" class="btn btn-warning btn-sm px-3">Edit</a>
-                            <a href="/Admin/Actor/Delete/@item.Id" class="btn btn-danger btn-sm px-3 btn-delete">Delete</a>
-                        </div>
+                        @if (User.IsInRole(SD.SUPER_ADMIN_ROLE) || User.IsInRole(SD.ADMIN_ROLE))
+                        {
+                            <div class="d-flex justify-content-center gap-2 mt-3">
+                                <a href="/Admin/Actor/Edit/@item.Id" class="btn btn-warning btn-sm px-3">Edit</a>
+                                <a href="/Admin/Actor/Delete/@item.Id" class="btn btn-danger btn-sm px-3 btn-delete">Delete</a>
+                            </div>
+						}
+						else
+						{
+							<td>No Actions!</td>
+						}
                     </div>
                 </div>
             </div>

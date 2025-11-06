@@ -2,6 +2,8 @@
 using CinemaTicketSystem.Models;
 using CinemaTicketSystem.Repositories;
 using CinemaTicketSystem.Repositories.IRepositories;
+using CinemaTicketSystem.Utitlies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -10,6 +12,7 @@ using System.Threading.Tasks;
 namespace CinemaTicketSystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE},{SD.EMPLOYEE_ROLE},")]
     public class CategoryController : Controller
     {
         //Repository<Category> _categoryRepository = new();
@@ -47,6 +50,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetOneAsync(c => c.CategoryId == id, tracked: false, cancellationToken: cancellationToken);
@@ -58,6 +62,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Edit(Category category, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -71,7 +76,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
             TempData["success-notification"] = "Category updated successfully!";
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetOneAsync(c => c.CategoryId == id, tracked: false, cancellationToken: cancellationToken);

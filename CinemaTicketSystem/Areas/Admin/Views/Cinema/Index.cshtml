@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CinemaTicketSystem.ViewModels.CinemaVM>
+﻿@using CinemaTicketSystem.Utitlies
+@model IEnumerable<CinemaTicketSystem.ViewModels.CinemaVM>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
@@ -7,28 +8,28 @@
 
 <style>
     .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 15px;
-        overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
     }
 
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
+    .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
 
     .card-img-top {
-        transition: transform 0.4s ease, filter 0.4s ease;
+    transition: transform 0.4s ease, filter 0.4s ease;
     }
 
     .card:hover .card-img-top {
-        transform: scale(1.07);
-        filter: brightness(1.1);
+    transform: scale(1.07);
+    filter: brightness(1.1);
     }
 
     .pagination .page-item.active .page-link {
-        background-color: #198754;
-        border-color: #198754;
+    background-color: #198754;
+    border-color: #198754;
     }
 </style>
 
@@ -52,17 +53,26 @@
 
                     <!-- الصورة -->
                     <img src="@Url.Content($"~/CinemaImages/{item.Img}")"
-                         class="card-img-top"
-                         alt="@item.Name"
-                         style="height:250px; object-fit:cover;" />
+                    class="card-img-top"
+                    alt="@item.Name"
+                    style="height:250px; object-fit:cover;" />
 
                     <div class="card-body text-center">
                         <h5 class="card-title mt-2">@item.Name</h5>
+                        @if (User.IsInRole(SD.SUPER_ADMIN_ROLE) || User.IsInRole(SD.ADMIN_ROLE))
+                        {
 
-                        <div class="d-flex justify-content-center gap-2 mt-3">
-                            <a href="/Admin/Cinema/Edit/@item.CinemaId" class="btn btn-warning btn-sm px-3">Edit</a>
-                            <a href="/Admin/Cinema/Delete/@item.CinemaId" class="btn btn-danger btn-sm px-3 btn-delete">Delete</a>
-                        </div>
+                            <div class="d-flex justify-content-center gap-2 mt-3">
+                                <a href="/Admin/Cinema/Edit/@item.CinemaId" class="btn btn-warning btn-sm px-3">Edit</a>
+                                <a href="/Admin/Cinema/Delete/@item.CinemaId" class="btn btn-danger btn-sm px-3 btn-delete">Delete</a>
+                            </div>
+                        }
+                        else 
+                        {
+                            <td>No Actions!</td>
+
+                             
+                        }
                     </div>
                 </div>
             </div>

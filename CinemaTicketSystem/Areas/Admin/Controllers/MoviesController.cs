@@ -7,10 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.IO;
 using CinemaTicketSystem.Repositories.IRepositories;
+using CinemaTicketSystem.Utitlies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CinemaTicketSystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE},{SD.EMPLOYEE_ROLE},")]
     public class MoviesController : Controller
     {
         ApplicationDBContext _context; //= new();
@@ -192,6 +195,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
         // ================= EDIT (GET) ==================
         [HttpGet]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Edit(int id)
         {
             // استخدام GetOneAsync من الـ Repository
@@ -220,6 +224,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
 
         // ================= EDIT (POST) ==================
         [HttpPost]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Edit(Movie movie, IFormFile? MainImgFile, List<IFormFile>? SubImgs, List<int>? SelectedActors)
         {
             // استخدام GetOneAsync من الـ Repository
@@ -312,6 +317,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         // ================= DELETE ==================
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Delete(int id)
         {
             var movie = await _movieRepository.GetOneAsync(
@@ -344,6 +350,7 @@ namespace CinemaTicketSystem.Areas.Admin.Controllers
         }
 
         // ================= DELETE SUB IMAGE ==================
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> DeleteSubImg(int movieId, string img)
         {
             if (string.IsNullOrEmpty(img))

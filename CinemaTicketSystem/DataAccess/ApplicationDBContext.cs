@@ -20,6 +20,9 @@ namespace CinemaTicketSystem.DataAccess
         public DbSet<Category> Categories { get; set; }
         public DbSet<Cinema> Cinemas { get; set; }
         public DbSet<ApplicationUserOTP> ApplicationUserOTP { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
+
 
 
 
@@ -48,6 +51,7 @@ namespace CinemaTicketSystem.DataAccess
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(MovieActorEntityTypeConfiguration).Assembly);
             base.OnModelCreating(modelBuilder);
         }
-        public DbSet<CinemaTicketSystem.ViewModels.RegisterVM> RegisterVM { get; set; } = default!;
+       
+        
     }
 }

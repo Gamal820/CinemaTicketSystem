@@ -7,32 +7,57 @@
     <div class="row g-4 align-items-start">
         <!-- الصورة الرئيسية + الصور الفرعية -->
         <div class="col-md-6 text-center">
-            <!-- الصورة الرئيسية -->
-            <div class="position-relative">
-                <img src="~/images/movies/@Model.MainImg"
-                     alt="@Model.Name"
-                     class="img-fluid rounded shadow"
-                     style="width: 100%; max-height: 450px; object-fit: contain; background-color: #000;" />
-            </div>
+            <!-- Carousel للصور -->
+            <div id="movieCarousel" class="carousel slide shadow rounded" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <!-- الصورة الرئيسية -->
+                    <div class="carousel-item active">
+                        <img src="~/images/movies/@Model.MainImg"
+                             class="d-block w-100 rounded"
+                             alt="@Model.Name"
+                             style="max-height: 450px; object-fit: cover; background-color: #000;" />
+                    </div>
 
-            <!-- الصور الفرعية -->
-            @if (Model.MovieSubImages != null && Model.MovieSubImages.Any())
-            {
-                <div class="mt-4 d-flex flex-wrap justify-content-center gap-3">
-                    @foreach (var img in Model.MovieSubImages)
+                    <!-- الصور الفرعية -->
+                    @if (Model.MovieSubImages != null && Model.MovieSubImages.Any())
                     {
-                        <div class="subimg-wrapper border rounded shadow-sm"
-                             style="overflow: hidden; width: 110px; height: 110px;">
-                            <img src="~/images/movies/sub/@img.Img"
-                                 alt="Sub Image"
-                                 class="w-100 h-100"
-                                 style="object-fit: cover; cursor: pointer; transition: all 0.3s ease;"
-                                 onmouseover="this.style.transform='scale(1.08)'"
-                                 onmouseout="this.style.transform='scale(1)'" />
-                        </div>
+                        foreach (var img in Model.MovieSubImages)
+                        {
+                            <div class="carousel-item">
+                                <img src="~/images/movies/sub/@img.Img"
+                                     class="d-block w-100 rounded"
+                                     alt="Sub Image"
+                                     style="max-height: 450px; object-fit: cover; background-color: #000;" />
+                            </div>
+                        }
                     }
                 </div>
-            }
+
+                <!-- أزرار التنقل -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+
+                <!-- المؤشرات -->
+                <div class="carousel-indicators mt-3">
+                    <button type="button" data-bs-target="#movieCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Main"></button>
+                    @if (Model.MovieSubImages != null && Model.MovieSubImages.Any())
+                    {
+                        int index = 1;
+                        foreach (var img in Model.MovieSubImages)
+                        {
+                            <button type="button" data-bs-target="#movieCarousel" data-bs-slide-to="@index" aria-label="Sub @index"></button>
+                            ;
+                            index++;
+                        }
+                    }
+                </div>
+            </div>
         </div>
 
         <!-- تفاصيل الفيلم -->
@@ -48,9 +73,13 @@
 
             <!-- الأزرار -->
             <div class="mt-4 d-flex gap-3">
-                <a href="#" class="btn btn-success btn-lg flex-fill">
-                    🎟️ Book Ticket
-                </a>
+                <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                    <input type="hidden" name="movieId" value="@Model.Id" />
+                    <button type="submit" class="btn btn-primary btn-lg flex-fill">
+                        🛒 Add to Cart
+                    </button>
+                </form>
+
                 <a href="/Customer/Customer/Index" class="btn btn-outline-secondary btn-lg flex-fill">
                     ⬅ Back to List
                 </a>
@@ -60,16 +89,32 @@
 </section>
 
 <style>
-    /* تحسين المظهر العام */
     body {
         background-color: #f9f9f9;
     }
 
-    img {
-        border-radius: 10px;
+    .carousel {
+        border-radius: 15px;
+        overflow: hidden;
     }
 
-    .subimg-wrapper img:hover {
-        filter: brightness(1.1);
+    .carousel-indicators [data-bs-target] {
+        background-color: #333;
     }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1);
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.03);
+        }
 </style>

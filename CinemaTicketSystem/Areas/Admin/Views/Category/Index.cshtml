@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CinemaTicketSystem.Models.Category>
+﻿@using CinemaTicketSystem.Utitlies
+@model IEnumerable<CinemaTicketSystem.Models.Category>
 
 
 <div class="container">
@@ -27,12 +28,21 @@
                         <tr>
                             <td>@item.CategoryId</td>
                             <td>@item.Name</td>
-                            <td>
-                                <a href="/Admin/Category/Edit/@item.CategoryId" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="/Admin/Category/Delete/@item.CategoryId" class="btn btn-danger btn-sm btn-delete">Delete</a>
-                            </td>
+
+                            @if (User.IsInRole(SD.SUPER_ADMIN_ROLE) || User.IsInRole(SD.ADMIN_ROLE))
+                             {
+                        <td>
+                            <a href="/Admin/Category/Edit/@item.CategoryId" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="/Admin/Category/Delete/@item.CategoryId" class="btn btn-danger btn-sm btn-delete">Delete</a>
+                        </td>
+                             }
+                            else
+                            {
+                                <td>No Actions!</td>
+                            }
                         </tr>
                     }
+                    
                 </tbody>
             </table>
         </div>

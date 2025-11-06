@@ -1,0 +1,19 @@
+﻿@using Microsoft.AspNetCore.Authentication
+@inject IAuthenticationSchemeProvider SchemeProvider
+
+<div class="mt-4 text-center">
+    <p class="text-muted mb-2">Or login with</p>
+
+    @foreach (var scheme in await SchemeProvider.GetAllSchemesAsync())
+    {
+        if (scheme.DisplayName == "Google")
+        {
+            <a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="@scheme.Name"
+               class="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                <img src="https://developers.google.com/identity/images/g-logo.png" width="22" height="22" />
+                <span class="fw-semibold">Login with Google</span>
+            </a>
+
+        }
+    }
+</div>
